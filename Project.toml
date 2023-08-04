@@ -1,0 +1,7 @@
+name = "InlineDispatch"
+uuid = "ab49173f-ff2e-4091-9f72-02325fb05285"
+authors = ["David Hanak <dhanak@gmail.com>"]
+version = "0.1.0"
+
+[compat]
+julia = "1.6"
