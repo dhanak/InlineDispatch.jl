@@ -42,7 +42,7 @@ julia> @dispatch "foo" begin
            r::Real    -> "real $r"
            ::Nothing  -> "nothing"
        end
-ERROR: @dispatch: Unmatched type String!
+ERROR: @dispatch: Unmatched type String! @ REPL[3]:1
 ```
 
 It can be particularly useful in `try ... catch` blocks to handle various types

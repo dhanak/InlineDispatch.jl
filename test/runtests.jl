@@ -27,6 +27,7 @@ end
 end
 
 @testset "@dispatch errors" begin
+    loc = string(@__FILE__, ':', (@__LINE__) + 5) # @dispatch call line
     function catch_test(f)
         try
             f()
@@ -42,6 +43,6 @@ end
     @test_warn   "AssertionError: false" catch_test(() -> @assert false)
     @test_warn   "InexactError"          catch_test(() -> Int(12.5))
     @test_throws ErrorException("foo")   catch_test(() -> error("foo"))
-    @test_throws(ErrorException("@dispatch: Unmatched type String!"),
+    @test_throws(ErrorException("@dispatch: Unmatched type String! @ $loc"),
                  catch_test(() -> throw("bar")))
 end

@@ -1,5 +1,5 @@
 """
-A simple module to perform dispatch on a value of an expression using the
+A simple module to perform dispatch on the value of an expression using the
 `@dispatch` macro.
 """
 module InlineDispatch
@@ -40,7 +40,7 @@ julia> @dispatch "foo" begin
            r::Real    -> "real \$r"
            ::Nothing  -> "nothing"
        end
-ERROR: @dispatch: Unmatched type String!
+ERROR: @dispatch: Unmatched type String! @ REPL[3]:1
 ```
 
 It can be particularly useful in `try ... catch` blocks to handle various types
@@ -67,8 +67,9 @@ macro dispatch(expr, body)
         @assert ex isa Expr && ex.head == :-> "Anonymous function expected!"
         return :($fn($(ex.args[1])) = $(ex.args[2]))
     end
+    loc = string(__source__.file, ':', __source__.line)
     return quote
-        let $fn(::T) where {T} = error("@dispatch: Unmatched type $(T)!")
+        let $fn(::T) where {T} = error("@dispatch: Unmatched type $(T)! @ ", $loc)
             $(methods...)
             $fn($expr)
         end
