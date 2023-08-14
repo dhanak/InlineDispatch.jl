@@ -4,7 +4,7 @@
 
 # InlineDispatch.jl
 
-A simple module to perform dispatch on a value of an expression using the
+A simple module to perform dispatch on the value of an expression using the
 `@dispatch` macro.
 
 ```julia
@@ -24,22 +24,22 @@ matter, the most specific match is chosen, as customary with Julian dispatch.
 
 ```julia
 julia> @dispatch 42 begin
-           i::Integer -> "int \$i"
-           r::Real    -> "real \$r"
+           i::Integer -> "int $i"
+           r::Real    -> "real $r"
            ::Nothing  -> "nothing"
        end
 "int 42"
 
 julia> @dispatch π begin
-           i::Integer -> "int \$i"
-           r::Real    -> "real \$r"
+           i::Integer -> "int $i"
+           r::Real    -> "real $r"
            ::Nothing  -> "nothing"
        end
 "real π"
 
 julia> @dispatch "foo" begin
-           i::Integer -> "int \$i"
-           r::Real    -> "real \$r"
+           i::Integer -> "int $i"
+           r::Real    -> "real $r"
            ::Nothing  -> "nothing"
        end
 ERROR: @dispatch: Unmatched type String!
