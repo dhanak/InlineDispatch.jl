@@ -11,7 +11,7 @@ end
         @test_throws err @eval @dispatch nothing begin :foo end
     end
 
-    function dispatch_test(v)
+    dispatch_test = @test_nowarn @eval function(v)
         return @dispatch v begin
             ::Integer -> :integer
             f::Real   -> string(f)
@@ -28,7 +28,7 @@ end
 
 @testset "@dispatch errors" begin
     loc = string(@__FILE__, ':', (@__LINE__) + 5) # @dispatch call line
-    function catch_test(f)
+    catch_test = @test_nowarn @eval function(f)
         try
             f()
         catch e

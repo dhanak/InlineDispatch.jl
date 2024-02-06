@@ -4,6 +4,8 @@ A simple module to perform dispatch on the value of an expression using the
 """
 module InlineDispatch
 
+using Base: remove_linenums!
+
 export @dispatch
 
 """
@@ -61,19 +63,24 @@ julia> try
 macro dispatch(expr, body)
     @assert(body isa Expr && body.head == :block,
             "begin ... end block expected in second argument!")
-    fn = gensym("dispatch")
+    fn = gensym("dispatch#$expr")
+    has_any = false
     methods::Vector{Union{Expr, LineNumberNode}} = map(body.args) do ex
         ex isa LineNumberNode && return ex
-        @assert ex isa Expr && ex.head == :-> "Anonymous function expected!"
-        return :($fn($(ex.args[1])) = $(ex.args[2]))
+        @assert Meta.isexpr(ex, :->, 2) "Anonymous function expected!"
+        (matcher, handler) = ex.args
+        has_any |= matcher isa Symbol
+        has_any |= Meta.isexpr(matcher, :(::)) && matcher.args[end] === :Any
+        return Expr(:(=), Expr(:call, fn, matcher), handler)
     end
     loc = string(__source__.file, ':', __source__.line)
-    return quote
-        let $fn(::T) where {T} = error("@dispatch: Unmatched type $(T)! @ ", $loc)
-            $(methods...)
-            $fn($expr)
-        end
-    end |> esc
+    unmatched = :(error("@dispatch: Unmatched type $(T)! @ ", $loc))
+    fallback = Expr(:(=),
+                    Expr(:where, Expr(:call, fn, Expr(:(::), :T)), :T),
+                    Expr(:block, __source__, unmatched))
+    return Expr(:let,
+                has_any ? Expr(:(::), fn, :Function) : fallback,
+                Expr(:block, methods..., Expr(:call, fn, expr))) |> esc
 end
 
 end # module InlineDispatch
